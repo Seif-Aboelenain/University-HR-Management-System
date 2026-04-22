@@ -33,4 +33,4 @@ A full-stack web application developed using **ASP.NET (C#)** and **SQL Server**
 
 ## Author
 Seif Ashraf Aboelenain  
-3rd Year Computer Enginerring Student
+3rd Year Computer Engineering Student
