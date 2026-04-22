@@ -68,11 +68,6 @@ The system manages university HR operations including employee data, attendance,
 ![Admin Login](screenshots/Admin%20Login.png)  
 ![Admin Panel](screenshots/Admin%20Panel.png)
 
-### 🔹 System Overview
-
-![Academic Dashboard](screenshots/Academic%20Dashboard.png)  
-![HR Dashboard](screenshots/HR%20Dashboard.png)
-
 ## 👥 My Contribution
 
 This project was developed as part of a **5-member team**.
