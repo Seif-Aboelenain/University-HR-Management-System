@@ -1,0 +1,111 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace databasemile3.Academic2
+{
+    public partial class ApplyMedicalLeave : System.Web.UI.Page
+    {
+        protected void Page_Load(object sender, EventArgs e)
+        {
+        }
+
+        protected void btnSubmitMedical_Click(object sender, EventArgs e)
+        {
+            // 1) Check login (Session must contain EmpID)
+            if (Session["EmpID"] == null)
+            {
+                lblMessage.Text = "You must log in as an academic employee before applying for a medical leave.";
+                return;
+            }
+
+            int employeeId = Convert.ToInt32(Session["EmpID"]);
+
+            // 2) Read and validate required fields
+            DateTime startDate, endDate;
+
+            if (!DateTime.TryParse(txtStartDate.Text, out startDate))
+            {
+                lblMessage.Text = "Please select a valid start date.";
+                return;
+            }
+
+            if (!DateTime.TryParse(txtEndDate.Text, out endDate))
+            {
+                lblMessage.Text = "Please select a valid end date.";
+                return;
+            }
+
+            if (endDate < startDate)
+            {
+                lblMessage.Text = "End date cannot be before start date.";
+                return;
+            }
+
+            string medicalType = txtMedicalType.Text.Trim();
+            if (string.IsNullOrEmpty(medicalType))
+            {
+                lblMessage.Text = "Please enter the medical leave type (e.g. sick, maternity).";
+                return;
+            }
+
+            bool insuranceStatus = chkInsurance.Checked;
+            string disabilityDetails = txtDisabilityDetails.Text.Trim();
+
+            string documentDescription = txtDocumentDescription.Text.Trim();
+            if (string.IsNullOrEmpty(documentDescription))
+            {
+                lblMessage.Text = "Please enter a document description.";
+                return;
+            }
+
+            string fileName = txtFileName.Text.Trim();
+            if (string.IsNullOrEmpty(fileName))
+            {
+                lblMessage.Text = "Please enter the document file name.";
+                return;
+            }
+
+            // 3) Call Submit_medical stored procedure
+            string connStr = ConfigurationManager.ConnectionStrings["databasemile3"].ConnectionString;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connStr))
+                using (SqlCommand cmd = new SqlCommand("Submit_medical", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
+                    cmd.Parameters.AddWithValue("@employee_ID", employeeId);
+                    cmd.Parameters.AddWithValue("@start_date", startDate);
+                    cmd.Parameters.AddWithValue("@end_date", endDate);
+                    cmd.Parameters.AddWithValue("@medical_type", medicalType);
+                    cmd.Parameters.AddWithValue("@insurance_status", insuranceStatus);
+                    cmd.Parameters.AddWithValue("@disability_details", disabilityDetails);
+                    cmd.Parameters.AddWithValue("@document_description", documentDescription);
+                    cmd.Parameters.AddWithValue("@file_name", fileName);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+
+                lblMessage.Text = "Your medical leave request has been submitted successfully.";
+            }
+            catch (SqlException)
+            {
+                lblMessage.Text = " Could not submit medical leave. Please review your data.";
+            }
+            catch (Exception)
+            {
+                lblMessage.Text = " An unexpected error occurred. Try again later.";
+            }
+
+        }
+    }
+}
